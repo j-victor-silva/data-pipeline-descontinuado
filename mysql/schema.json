@@ -1,0 +1,12 @@
+{
+  "user_id": "VARCHAR(255)",
+  "ip": "VARCHAR(255)",
+  "action": "VARCHAR(255)",
+  "traits": "JSON NULL",
+  "properties": "JSON NULL",
+  "browser": "JSON NULL",
+  "device": "JSON NULL",
+  "request": "JSON NULL",
+  "timestamp": "TIMESTAMP",
+  "ingestion_at": "TIMESTAMP"
+}
