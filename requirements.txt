@@ -1,0 +1,5 @@
+dnspython==2.3.0
+ez-setup==0.9
+mysqlclient==2.1.1
+pymongo==4.3.3
+python-dotenv==1.0.0
