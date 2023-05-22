@@ -1,7 +1,6 @@
 from pathlib import Path
 # Load the environment variables from the virtual environment
 from dotenv import dotenv_values
-from typing import NewType
 # from clean_data import clean_data
 import MySQLdb
 import json
@@ -21,15 +20,20 @@ class DefinitionError(Exception):
 
 def _get_connection():
     connection = MySQLdb.connect(
-        host=config["HOST"],
-        user=config["USERNAME"],
-        passwd=config["PASSWORD"],
-        db=config["DATABASE"],
-        ssl_mode="VERIFY_IDENTITY",
-        ssl={
-            "ca": "/etc/ssl/certs/ca-certificates.crt"
-        }
+        host="mysql",  # config["HOST"],
+        user="root",
+        passwd="password"
     )
+
+    def _create_database():
+        cursor = connection.cursor()
+
+        cursor.execute(f"""
+            CREATE DATABASE IF NOT EXISTS {config["DATABASE"]};
+        """)
+        cursor.close()
+
+    _create_database()
 
     return connection
 
@@ -42,6 +46,8 @@ def _create_table(table_name: str, columns: dict) -> None:
     try:
         connection = _get_connection()
         cursor = connection.cursor()
+
+        cursor.execute(f"USE {config['DATABASE']};")
 
         def convert_tuple(tup):
             """
@@ -87,8 +93,7 @@ def _create_table(table_name: str, columns: dict) -> None:
                 );"""
         )
 
-        connection.commit()
-        connection.close()
+        cursor.close()
     except Exception as e:
         print(e)
 
@@ -98,11 +103,3 @@ if __name__ == '__main__':
     data = json.load(file)
 
     _create_table("landing", data)
-    # database = _get_connection()
-    # print(database)
-    # database = _get_cursor()
-    # print(database)
-    # # print(config["USERNAME"])
-    # print(type(config["COLUMNS"]))
-    # print(json.loads(config["COLUMNS"]))
-    # print(type(json.loads(config["COLUMNS"])))
