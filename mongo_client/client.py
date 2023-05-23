@@ -8,13 +8,20 @@
     
     Versão: dev-0
 """
+from pathlib import Path
+# Load the environment variables from the virtual environment
+from dotenv import dotenv_values
 from pymongo import MongoClient
+
+module_path = Path()
+config = dotenv_values(f"{module_path.parent.absolute()}/.env")
 
 
 class Mongo:
     def __init__(self,
-                 user: str, passwd: str, database: str, collection: str, messages: list
+                 host: str, user: str, passwd: str, database: str, collection: str, messages: list
                  ):
+        self.host = host
         self.database = database
         self.user = user
         self.passwd = passwd
@@ -53,4 +60,12 @@ class Mongo:
 
 
 if __name__ == "__main__":
-    pass
+    client = Mongo(
+        host="mongodb://localhost:27017",
+        user="root",
+        passwd="password",
+        database="test",
+        collection="test",
+        messages=["oi", "test"]
+    )
+    print(client.get_messages())

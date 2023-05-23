@@ -1,0 +1,18 @@
+# IDE configs
+../../.fake-data/.idea/
+../../.fake-data/.vscode/
+
+# Virtual environment
+../../.fake-data/.venv
+
+# Build folders and files
+../../.fake-data/build/
+../../.fake-data/dist/
+../../.fake-data/message_script.spec
+
+# Gitignore
+../../.fake-data/.gitignore
+
+# Readme file
+../../.fake-data/*.md
+

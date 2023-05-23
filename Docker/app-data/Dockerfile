@@ -4,9 +4,9 @@ LABEL authors="jvict"
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY ../../.fake-data/requirements.txt requirements.txt
 RUN ["pip3", "install", "-r", "requirements.txt"]
 
-COPY . .
+COPY ../../.fake-data .
 
-CMD ["python3", "mysql/mysql_client.py"]
+RUN ["python3", "main.py"]

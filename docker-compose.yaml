@@ -3,7 +3,8 @@ version: "3.8"
 services:
   app:
     build:
-      context: .
+      context: ./
+      dockerfile: ./Docker/app-mysql/Dockerfile
 #    restart: always
     volumes:
       - ./:/app
@@ -14,6 +15,12 @@ services:
         condition: service_healthy
       mongo:
         condition: service_started
+
+#  fake_data:
+#    build:
+#      context: ./Docker/app-data
+#    volumes:
+#      - ./.fake-data/:/app
 
   mysql:
     image: mysql:latest
@@ -35,7 +42,13 @@ services:
   mongo:
     image: mongo:latest
     ports:
-      - "27017:27017"
+      - "29017:29017"
+#    healthcheck:
+#      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet 1
+#      interval: 5s
+#      timeout: 5s
+#      retries: 0
+#      start_period: 5s
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
@@ -46,3 +59,4 @@ volumes:
   mysql-data:
   mysql-config:
   mongodb-data:
+  .fake-data:
