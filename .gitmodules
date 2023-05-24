@@ -1,0 +1,3 @@
+[submodule ".fake-data"]
+	path = .fake-data
+	url = git@github.com:j-victor-silva/fake-data.git

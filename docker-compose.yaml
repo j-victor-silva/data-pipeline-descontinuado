@@ -5,7 +5,8 @@ services:
     build:
       context: ./
       dockerfile: ./Docker/app-mysql/Dockerfile
-#    restart: always
+    environment:
+      - MONGO_URI=mongodb://root:root@mongo:27017
     volumes:
       - ./:/app
     links:
@@ -15,15 +16,19 @@ services:
         condition: service_healthy
       mongo:
         condition: service_started
-
+#      fake_data:
+#        condition: service_completed_successfully
+#
 #  fake_data:
 #    build:
-#      context: ./Docker/app-data
+#      context: ./
+#      dockerfile: ./Docker/app-data/Dockerfile
 #    volumes:
 #      - ./.fake-data/:/app
 
   mysql:
     image: mysql:latest
+    restart: on-failure
     ports:
       - "3306:3306"
     healthcheck:
@@ -41,14 +46,9 @@ services:
 
   mongo:
     image: mongo:latest
+    restart: on-failure
     ports:
-      - "29017:29017"
-#    healthcheck:
-#      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet 1
-#      interval: 5s
-#      timeout: 5s
-#      retries: 0
-#      start_period: 5s
+      - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
@@ -57,6 +57,10 @@ services:
 
 volumes:
   mysql-data:
+    driver: local
   mysql-config:
+    driver: local
   mongodb-data:
+    driver: local
   .fake-data:
+    driver: local

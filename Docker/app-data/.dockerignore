@@ -16,3 +16,16 @@
 # Readme file
 ../../.fake-data/*.md
 
+# Parent directory and files
+../../.venv
+../../.vscode
+../../mongo_client
+../../mongodb-data
+../../mysql
+../../mysql-config
+../../mysql-data
+../../.env
+../../.gitignore
+../../api_key.txt
+../../*.md
+../../requirements.txt

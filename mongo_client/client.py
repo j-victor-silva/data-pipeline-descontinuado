@@ -12,6 +12,7 @@ from pathlib import Path
 # Load the environment variables from the virtual environment
 from dotenv import dotenv_values
 from pymongo import MongoClient
+import os
 
 module_path = Path()
 config = dotenv_values(f"{module_path.parent.absolute()}/.env")
@@ -33,7 +34,7 @@ class Mongo:
         connection_string = f"mongodb+srv://{self.user}:{self.passwd}@cluster-1.lk1b0en.mongodb.net/{self.database}"
 
         # Create a connection using MongoClient. You can import MongoClient or use pymongo.MongoClient()
-        client = MongoClient(connection_string)
+        client = MongoClient(self.host)
 
         # Create the database
         return client
@@ -61,11 +62,15 @@ class Mongo:
 
 if __name__ == "__main__":
     client = Mongo(
-        host="mongodb://localhost:27017",
+        host=os.environ["MONGO_URI"],
         user="root",
-        passwd="password",
+        passwd="root",
         database="test",
         collection="test",
-        messages=["oi", "test"]
+        messages=[{"name": "jv"}, {"name": "elis"}]
     )
-    print(client.get_messages())
+    try:
+        client.send_messages()
+        print("Messages sent successfully!")
+    except Exception as e:
+        print(e)
