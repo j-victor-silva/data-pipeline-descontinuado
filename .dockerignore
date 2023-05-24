@@ -1,0 +1,20 @@
+# Fake data directory
+../../.fake-data/
+
+# Readme file
+*.md
+
+# Git ignore
+.gitignore
+.gitmodules
+
+# Settings directory
+.venv/
+.vscode/
+
+# API Key
+api_key.txt
+
+# Docker folder and files
+Docker/
+docker-compose.yaml

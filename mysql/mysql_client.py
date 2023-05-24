@@ -99,7 +99,7 @@ def _create_table(table_name: str, columns: dict) -> None:
 
 
 if __name__ == '__main__':
-    file = open(f"{module_path}/mysql/schema.json")
+    file = open(f"{module_path}/mysql/schema/schema.json")
     data = json.load(file)
 
     _create_table("landing", data)

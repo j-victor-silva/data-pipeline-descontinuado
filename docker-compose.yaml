@@ -1,32 +1,56 @@
 version: "3.8"
 
 services:
-  app:
+  app-mysql:
+    container_name: app-mysql
     build:
       context: ./
-      dockerfile: ./Docker/app-mysql/Dockerfile
+      dockerfile: Docker/app-mysql/Dockerfile
     environment:
       - MONGO_URI=mongodb://root:root@mongo:27017
     volumes:
-      - ./:/app
+      - ./mysql/:/app-mysql/mysql/:ro
+      - output:/app-mysql/output/
     links:
       - mysql
+      - mongo
     depends_on:
       mysql:
         condition: service_healthy
       mongo:
         condition: service_started
-#      fake_data:
-#        condition: service_completed_successfully
-#
-#  fake_data:
-#    build:
-#      context: ./
-#      dockerfile: ./Docker/app-data/Dockerfile
-#    volumes:
-#      - ./.fake-data/:/app
+      app-test:
+        condition: service_completed_successfully
+
+  app-mongo:
+    container_name: app-mongo
+    build:
+      context: ./
+      dockerfile: Docker/app-mongo/Dockerfile
+    environment:
+      - MONGO_URI=mongodb://root:root@mongo:27017
+    volumes:
+      - ./mongo_client/:/app-mongo/mongo/:ro
+      - output:/app-mongo/output/
+    links:
+      - mongo
+    depends_on:
+      mongo:
+        condition: service_started
+      app-test:
+        condition: service_completed_successfully
+
+  app-test:
+    container_name: app-test
+    build:
+      context: ./.fake-data/
+      dockerfile: Docker/app-test/Dockerfile
+    volumes:
+      - ./.fake-data/:/app-test:ro
+      - output:/app-test/output/
 
   mysql:
+    container_name: mysql
     image: mysql:latest
     restart: on-failure
     ports:
@@ -42,9 +66,10 @@ services:
       - MYSQL_DATABASE=${DATABASE}
     volumes:
       - mysql-data:/var/lib/mysql
-      - mysql-config:/etc/mysql
+      - mysql-config:/etc/mysql:ro
 
   mongo:
+    container_name: mongo
     image: mongo:latest
     restart: on-failure
     ports:
@@ -57,10 +82,6 @@ services:
 
 volumes:
   mysql-data:
-    driver: local
   mysql-config:
-    driver: local
   mongodb-data:
-    driver: local
-  .fake-data:
-    driver: local
+  output:

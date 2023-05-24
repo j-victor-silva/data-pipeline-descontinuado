@@ -2,9 +2,9 @@
 FROM python:latest
 LABEL authors="jvict"
 
-RUN ["mkdir", "app-mysql"]
+RUN ["mkdir", "app-mongo"]
 
-WORKDIR /app-mysql
+WORKDIR /app-mongo
 
 RUN ["mkdir", "output"]
 
@@ -13,9 +13,9 @@ COPY ../../requirements.txt requirements.txt
 RUN ["pip3", "install", "-r", "requirements.txt"]
 
 # Copying the folder of our project
-COPY ../../mysql ./mysql
+COPY ../../mongo_client ./mongo
 
 # Copying .env file
 COPY ../../.env .
 
-CMD python3 mysql/mysql_client.py
+CMD python3 mongo/client.py

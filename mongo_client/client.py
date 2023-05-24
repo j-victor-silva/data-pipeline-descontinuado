@@ -13,6 +13,7 @@ from pathlib import Path
 from dotenv import dotenv_values
 from pymongo import MongoClient
 import os
+import json
 
 module_path = Path()
 config = dotenv_values(f"{module_path.parent.absolute()}/.env")
@@ -61,13 +62,18 @@ class Mongo:
 
 
 if __name__ == "__main__":
+    try:
+        messages_file = json.load(open(f"{module_path.parent.absolute()}/output/messages.json", "r"))
+    except FileNotFoundError as e:
+        raise e
+
     client = Mongo(
         host=os.environ["MONGO_URI"],
         user="root",
         passwd="root",
         database="test",
         collection="test",
-        messages=[{"name": "jv"}, {"name": "elis"}]
+        messages=messages_file
     )
     try:
         client.send_messages()
