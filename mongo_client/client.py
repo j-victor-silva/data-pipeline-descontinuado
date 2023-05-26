@@ -14,6 +14,10 @@ from pathlib import Path
 # Load the environment variables from the virtual environment
 from dotenv import dotenv_values
 from pymongo import MongoClient
+from pymongo.errors import (
+    ConnectionFailure,
+    PyMongoError
+)
 from typing import Optional
 
 module_path = Path()
@@ -41,13 +45,15 @@ class Mongo:
 
     - :method:`close()` encerra a conexão
     """
-    HOST = "localhost"
+    HOST = "mongodb://{}:{}@{}"
     PORT = 27017
+    SRV = "mongo"
 
     def __init__(
             self,
             host: Optional[str] = None,
-            port: Optional[str] = None,
+            port: Optional[int] = None,
+            srv: Optional[str] = None,
             user: Optional[str] = "",
             passwd: Optional[str] = "",
             database: str = "track",
@@ -55,10 +61,46 @@ class Mongo:
             messages: list = None
      ) -> None:
         """
-
+        :Parameters:
+            - `host` (opcional): nome do host ou IP para conectar ao servidor ou
+              banco de dados (default=mongodb://{}:{}@{}).
+            - `port` (opcional): número da porta que será conectada.
+            - `srv` (opcional): nomenclatura do servidor em que o client tentará conectar
+              (default="mongo").
+            - `user` (opcional): usuário com o acesso ao banco de dados (pode
+              ser nulo).
+            - `passwd` (opcional): senha do usuário (pode ser nulo).
+            - `database`: nome do banco de dados que o client irá conectar
+              (default="track").
+            - `collection`: nome da coleção que o client irá conectar
+              (default="data").
+            - `messages`: uma lista com mensagens em formato dict contendo
+              o conteúdo que será inserido dentro da coleção.
         """
-        self.host = self.HOST if host is None else host
-        self.port = self.PORT if port is None else port
+        if not isinstance(host, str):
+            if host is None:
+                self.host = self.HOST
+            elif type(host) != str:
+                raise TypeError("O host precisa ser em tipo string.")
+        else:
+            self.host = host
+
+        if not isinstance(port, int):
+            if port is None:
+                self.port = self.PORT
+            elif type(port) != int:
+                raise TypeError("A port precisa ser do tipo int.")
+        else:
+            self.port = port
+
+        if not isinstance(srv, str):
+            if srv is None:
+                self.srv = self.SRV
+            elif type(srv) != str:
+                raise TypeError("O srv precisa ser do tipo string.")
+        else:
+            self.srv = srv
+
         self.database = database
         self.user = user
         self.passwd = passwd
@@ -66,32 +108,56 @@ class Mongo:
         self.messages = messages
 
     def get_connection(self):
+        """
+        Fornece conexão com o servidor mongo
+
+        Retorna a conexão com o servidor, se não for possível conectar irá retornar um erro.
+        """
         # Provide the Mongodb URI to connect python to Mongo database
-        connection_string = f"{self.host}:{self.port}"
+        connection_string = self.host.format(self.user, self.passwd, self.srv)
+        connection_string = f"{connection_string}:{self.port}"
 
         # Create a connection using MongoClient. You can import MongoClient or use pymongo.MongoClient()
-        _client = MongoClient(connection_string)
+        try:
+            _client = MongoClient(connection_string)
+        except ConnectionFailure as connection_error:
+            raise connection_error
 
         # Create the database
         return _client
 
     def get_database(self):
+        """
+        Conecta com o banco de dados passado no arg no método __init__ usando
+        o objeto criado no método get_connection.
+        """
         # Get the connection from the previous function and call the database which we will want to get information
         database = self.get_connection()[self.database]
 
         return database
 
     def get_collection(self):
+        """
+        Conecta na coleção passada no arg no método __init__ usando o objeto
+        criado no método get_database.
+        """
         # Get the collection from the database that we call previously
         collection = self.get_database()[self.collection]
 
         return collection
 
     def get_messages(self):
+        """
+        Retorna todas as mensagens da coleção usando o objeto do método
+        get_collection.
+        """
         # Returning all messages from the collection
         return self.get_collection().find()
 
     def send_messages(self):
+        """
+        Envia as mensagens armazenas no arg `messages` passado no método __init__
+        """
         # Sending messages for our collection
         self.get_collection().insert_many(self.messages)
 
@@ -108,7 +174,8 @@ if __name__ == "__main__":
 
     client = Mongo(
         host=os.environ["MONGO_URI"],
-        port=os.environ["MONGO_PORT"],
+        port=int(os.environ["MONGO_PORT"]),
+        srv=os.environ["MONGO_SRV"],
         user=os.environ["MONGO_USER"],
         passwd=os.environ["MONGO_PASSWD"],
         messages=messages_file
