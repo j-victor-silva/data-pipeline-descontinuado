@@ -1,15 +1,21 @@
+import MySQLdb
+import json
+import time
 from pathlib import Path
 # Load the environment variables from the virtual environment
 from dotenv import dotenv_values
 # from clean_data import clean_data
-import MySQLdb
-import json
+from MySQLdb import (
+    DatabaseError,
+    OperationalError,
+    InternalError
+)
 
 module_path = Path()
 config = dotenv_values(f"{module_path.parent.absolute()}/.env")
 
 
-class DefinitionError(Exception):
+class TableCreationError(Exception):
     # Raised when trying to create a table that already exists
 
     def __init__(self, table: str, message="Error: The table '{0}' already exists"):
@@ -19,11 +25,15 @@ class DefinitionError(Exception):
 
 
 def _get_connection():
-    connection = MySQLdb.connect(
-        host="mysql",  # config["HOST"],
-        user="root",
-        passwd="password"
-    )
+    try:
+        connection = MySQLdb.connect(
+            host="mysql",  # config["HOST"],
+            user="root",
+            passwd="password"
+        )
+    except:
+        raise InternalError(f"[{time.strftime('%I:%M:%S %p')}] Erro: verifique se o host existe e está digitado"
+                            f" corretamente, ou então verifique as credenciais.")
 
     def _create_database():
         cursor = connection.cursor()
@@ -45,6 +55,8 @@ def _create_table(table_name: str, columns: dict) -> None:
     """
     try:
         connection = _get_connection()
+        print(f"[{time.strftime('%I:%M:%S %p')}] MySQL connection started."
+              f"")
         cursor = connection.cursor()
 
         cursor.execute(f"USE {config['DATABASE']};")
@@ -71,7 +83,7 @@ def _create_table(table_name: str, columns: dict) -> None:
             """)
 
             if cursor.fetchone()[0] == 1:
-                raise DefinitionError(table=table_name)
+                raise TableCreationError(table=table_name)
 
             return True
 

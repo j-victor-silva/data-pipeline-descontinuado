@@ -6,17 +6,26 @@
     Ainda é uma versão básica de teste de conexão e será atualizada
     de tempos em tempos.
     
-    Versão: dev-0
+    Versão: dev-0.1
+
+    Update: 0.1
+    - Adicionada verificação de erro de conexão com o bando de dados;
+    - Adicionada documentação;
+    - Adicionado variáveis default na classe (SRV, HOST e PORT);
+    - Adicionado arg srv no método __init__;
+    - Adicionado condições de type para os args: host, port e srv;
+    - Connection_string agora é uma junção de host, user, passwd, srv e port;
+    - Adicionado método de close connection na classe e no fim do código.
 """
 import os
 import json
+import time
 from pathlib import Path
 # Load the environment variables from the virtual environment
 from dotenv import dotenv_values
 from pymongo import MongoClient
 from pymongo.errors import (
-    ConnectionFailure,
-    PyMongoError
+    ConnectionFailure
 )
 from typing import Optional
 
@@ -114,7 +123,8 @@ class Mongo:
         Retorna a conexão com o servidor, se não for possível conectar irá retornar um erro.
         """
         # Provide the Mongodb URI to connect python to Mongo database
-        connection_string = self.host.format(self.user, self.passwd, self.srv)
+        connection_string = self.host.format(self.user, self.passwd,
+                                             self.srv)
         connection_string = f"{connection_string}:{self.port}"
 
         # Create a connection using MongoClient. You can import MongoClient or use pymongo.MongoClient()
@@ -172,18 +182,25 @@ if __name__ == "__main__":
     except FileNotFoundError as e:
         raise e
 
-    client = Mongo(
-        host=os.environ["MONGO_URI"],
-        port=int(os.environ["MONGO_PORT"]),
-        srv=os.environ["MONGO_SRV"],
-        user=os.environ["MONGO_USER"],
-        passwd=os.environ["MONGO_PASSWD"],
-        messages=messages_file
-    )
+    try:
+        client = Mongo(
+            host=os.environ["MONGO_URI"],
+            port=int(os.environ["MONGO_PORT"]),
+            srv=os.environ["MONGO_SRV"],
+            user=os.environ["MONGO_USER"],
+            passwd=os.environ["MONGO_PASSWD"],
+            messages=messages_file
+        )
+        print(f"[{time.strftime('%I:%M:%S %p')}] Started connection.")
+    except ConnectionFailure as e:
+        print(f"[{time.strftime('%I:%M:%S %p')}] Connection Fail... Error: {e}")
+
     try:
         client.send_messages()
-        print("Messages sent successfully!")
-    except Exception as e:
-        print(e)
+        print(f"[{time.strftime('%I:%M:%S %p')}] Messages sent successfully!")
 
-    client.close()
+        client.close()
+        print(f"[{time.strftime('%I:%M:%S %p')}] Connection closed.")
+    except Exception as e:
+        print(f"[{time.strftime('%I:%M:%S %p')}] Error: {e}")
+
