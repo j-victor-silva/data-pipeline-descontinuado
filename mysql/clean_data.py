@@ -54,21 +54,92 @@
             timestamp: timestamp,
             ingestion_at: timestamp
         }
-    
-    Versão: dev-0
+
+    O que fazer em seguida:
+        - Verificar se as mensagens são inseridas corretamente;
+        - Criar condição para que mensagens iguais não se repitam.
+        
+    Versão: dev-0.1
 """
-# Load the environment variables from the virtual environment
-from dotenv import load_dotenv
-load_dotenv()
-
-
 import os
+import time
 import MySQLdb
-from mongo_client import Mongo
+from MySQLdb import (
+    InternalError
+)
+from pymongo import MongoClient
+from pathlib import Path
+from typing import Optional
+# Load the environment variables from the virtual environment
+from dotenv import dotenv_values
+
+module_path = Path()
+config = dotenv_values(f"{module_path.parent.absolute()}/.env")
 
 
-def clean_data():
-    ...    
+def get_messages_from_mongo(
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+        srv: Optional[str] = None,
+        user: Optional[str] = None,
+        passwd: Optional[str] = None,
+        database: str = "track",
+        collection: str = "data"
+):
+    def get_connection_to_mongo():
+        # debug_connection_string = host
+        # debug_connection = MongoClient(debug_connection_string)
+
+        connection_string = host.format(user, passwd, srv)
+        connection_string = f"{connection_string}:{port}"
+        connection = MongoClient(connection_string)
+
+        return connection
+
+    return get_connection_to_mongo()[database][collection].find()
+
+
+def insert_messages_to_mysql():
+    def get_connection_to_mysql():
+        try:
+            connection = MySQLdb.connect(
+                host=config["HOST"],
+                user=config["USERNAME"],
+                passwd=config["PASSWORD"]
+            )
+        except:
+            raise InternalError(f"[{time.strftime('%I:%M:%S %p')}] Erro: verifique se o host existe e está digitado"
+                                f" corretamente, ou então verifique as credenciais.")
+
+        return connection
+
+    cursor = get_connection_to_mysql().cursor()
+
+    for message in get_messages_from_mongo():
+        cursor.execute(f"""INSERT INTO landing (
+            user_id,
+            ip,
+            action,
+            traits,
+            properties,
+            browser,
+            device,
+            request,
+            timestamp,
+            ingestion_at
+        ) VALUES (
+            {message["user_id"]},
+            {message["ip"]},
+            {message["action"]},
+            {message["traits"]},
+            {message["properties"]},
+            {message["browser"]},
+            {message["device"]},
+            {message["request"]},
+            {message["timestamp"]},
+            {message["ingestion_at"]}
+        )"""
+                       )
 
 
 if __name__ == '__main__':

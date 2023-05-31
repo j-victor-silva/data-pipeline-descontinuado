@@ -6,8 +6,6 @@ from pathlib import Path
 from dotenv import dotenv_values
 # from clean_data import clean_data
 from MySQLdb import (
-    DatabaseError,
-    OperationalError,
     InternalError
 )
 
@@ -27,9 +25,9 @@ class TableCreationError(Exception):
 def _get_connection():
     try:
         connection = MySQLdb.connect(
-            host="mysql",  # config["HOST"],
-            user="root",
-            passwd="password"
+            host=config["HOST"],
+            user=config["USERNAME"],
+            passwd=config["PASSWORD"]
         )
     except:
         raise InternalError(f"[{time.strftime('%I:%M:%S %p')}] Erro: verifique se o host existe e está digitado"

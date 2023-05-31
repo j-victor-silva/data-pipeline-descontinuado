@@ -162,6 +162,7 @@ class Mongo:
         get_collection.
         """
         # Returning all messages from the collection
+        # Obs: it needed iterate from this object to collect the messages
         return self.get_collection().find()
 
     def send_messages(self):
