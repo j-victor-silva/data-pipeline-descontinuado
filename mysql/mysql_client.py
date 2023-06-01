@@ -1,10 +1,10 @@
 import MySQLdb
 import json
 import time
+import clean_data as cd
 from pathlib import Path
 # Load the environment variables from the virtual environment
 from dotenv import dotenv_values
-# from clean_data import clean_data
 from MySQLdb import (
     InternalError
 )
@@ -113,3 +113,12 @@ if __name__ == '__main__':
     data = json.load(file)
 
     _create_table("landing", data)
+    cd.insert_messages_to_mysql()
+    # count = 0
+    # for i in cd.get_messages_from_mongo():
+    #     if count > 2:
+    #         break
+    #
+    #     print(type(i["traits"]))
+    #
+    #     count += 1

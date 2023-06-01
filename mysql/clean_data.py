@@ -78,11 +78,11 @@ config = dotenv_values(f"{module_path.parent.absolute()}/.env")
 
 
 def get_messages_from_mongo(
-        host: Optional[str] = None,
-        port: Optional[int] = None,
-        srv: Optional[str] = None,
-        user: Optional[str] = None,
-        passwd: Optional[str] = None,
+        host: Optional[str] = os.environ["MONGO_URI"],
+        port: Optional[int] = int(os.environ["MONGO_PORT"]),
+        srv: Optional[str] = os.environ["MONGO_SRV"],
+        user: Optional[str] = os.environ["MONGO_USER"],
+        passwd: Optional[str] = os.environ["MONGO_PASSWD"],
         database: str = "track",
         collection: str = "data"
 ):
@@ -115,32 +115,42 @@ def insert_messages_to_mysql():
 
     cursor = get_connection_to_mysql().cursor()
 
-    for message in get_messages_from_mongo():
-        cursor.execute(f"""INSERT INTO landing (
-            user_id,
-            ip,
-            action,
-            traits,
-            properties,
-            browser,
-            device,
-            request,
-            timestamp,
-            ingestion_at
-        ) VALUES (
-            {message["user_id"]},
-            {message["ip"]},
-            {message["action"]},
-            {message["traits"]},
-            {message["properties"]},
-            {message["browser"]},
-            {message["device"]},
-            {message["request"]},
-            {message["timestamp"]},
-            {message["ingestion_at"]}
-        )"""
-                       )
+    try:
+        count: int = 0
+        for message in get_messages_from_mongo():
+            cursor.execute(f"""INSERT INTO landing (
+                user_id,
+                ip,
+                action,
+                traits,
+                properties,
+                browser,
+                device,
+                request,
+                timestamp,
+                ingestion_at
+            ) VALUES (
+                {message["user_id"]},
+                {message["ip"]},
+                {message["action"]},
+                {message["traits"]},
+                {message["properties"]},
+                {message["browser"]},
+                {message["device"]},
+                {message["request"]},
+                {message["timestamp"]},
+                {message["ingestion_at"]}
+            )"""
+                           )
+
+            count += 1
+    except:
+        raise
+
+    print(f"[{time.strftime('%I:%M:%S %p')}] {count} linhas adicionadas à tabela `landing`.")
 
 
 if __name__ == '__main__':
-    ...
+    for i in get_messages_from_mongo():
+        print(type(i))
+    # insert_messages_to_mysql()

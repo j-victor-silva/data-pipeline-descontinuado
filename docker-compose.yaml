@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  app-mysql:
+  app-mysql-1:
     build:
       context: ./
       dockerfile: Docker/app-mysql/Dockerfile
