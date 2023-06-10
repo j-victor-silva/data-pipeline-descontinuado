@@ -13,7 +13,7 @@ COPY ../../requirements.txt requirements.txt
 RUN ["pip3", "install", "-r", "requirements.txt"]
 
 # Copying the folder of our project
-COPY ../../mongo_client ./mongo
+COPY ../../mongo_client-descontinuado ./mongo
 
 # Copying .env file
 COPY ../../.env .

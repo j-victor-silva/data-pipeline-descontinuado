@@ -1,87 +1,87 @@
 version: "3.8"
 
 services:
-  app-mysql-1:
-    build:
-      context: ./
-      dockerfile: Docker/app-mysql/Dockerfile
-    environment:
-      - MONGO_URI=mongodb://{}:{}@{}
-      - MONGO_PORT=27017
-      - MONGO_SRV=mongo
-      - MONGO_USER=root
-      - MONGO_PASSWD=root
-    volumes:
-      - ./mysql/:/app-mysql/mysql/:ro
-      - output:/app-mysql/output/
-    links:
-      - mysql
-      - mongo
-    depends_on:
-      mysql:
-        condition: service_healthy
-      mongo:
-        condition: service_started
-      app-test:
-        condition: service_completed_successfully
+#  app-mysql-1:
+#    build:
+#      context: ./
+#      dockerfile: Docker/app-mysql/Dockerfile
+#    environment:
+#      - MONGO_URI=mongodb://{}:{}@{}
+#      - MONGO_PORT=27017
+#      - MONGO_SRV=mongo
+#      - MONGO_USER=root
+#      - MONGO_PASSWD=root
+#    volumes:
+#      - ./mysql-descontinuado/:/app-mysql-descontinuado/mysql-descontinuado/:ro
+#      - output:/app-mysql-descontinuado/output/
+#    links:
+#      - mysql
+#      - mongo
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
+#      mongo:
+#        condition: service_started
+#      app-test:
+#        condition: service_completed_successfully
 
-  app-mongo:
-    build:
-      context: ./
-      dockerfile: Docker/app-mongo/Dockerfile
-    environment:
-      - MONGO_URI=mongodb://root:root@mongo
-      - MONGO_PORT=27017
-      - MONGO_SRV=mongo
-      - MONGO_USER=root
-      - MONGO_PASSWD=root
-    volumes:
-      - ./mongo_client/:/app-mongo/mongo/:ro
-      - output:/app-mongo/output/
-    links:
-      - mongo
-    depends_on:
-      mongo:
-        condition: service_started
-      app-test:
-        condition: service_completed_successfully
+#  app-mongo:
+#    build:
+#      context: ./
+#      dockerfile: Docker/app-mongo/Dockerfile
+#    environment:
+#      - MONGO_URI=mongodb://root:root@mongo
+#      - MONGO_PORT=27017
+#      - MONGO_SRV=mongo
+#      - MONGO_USER=root
+#      - MONGO_PASSWD=root
+#    volumes:
+#      - ./mongo_client-descontinuado/:/app-mongo/mongo/:ro
+#      - output:/app-mongo/output/
+#    links:
+#      - mongo
+#    depends_on:
+#      mongo:
+#        condition: service_started
+#      app-test:
+#        condition: service_completed_successfully
 
-  app-test:
-    build:
-      context: ./.fake-data/
-      dockerfile: Docker/app-test/Dockerfile
-    volumes:
-      - ./.fake-data/:/app-test:ro
-      - output:/app-test/output/
+#  app-test:
+#    build:
+#      context: ./.fake-data/
+#      dockerfile: Docker/app-test/Dockerfile
+#    volumes:
+#      - ./.fake-data/:/app-test:ro
+#      - output:/app-test/output/
 
-  mysql:
-    image: mysql:latest
-    restart: on-failure
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 0
-    environment:
-      - MYSQL_ROOT_USERNAME=root
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=${DATABASE}
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - mysql-config:/etc/mysql:ro
+#  mysql:
+#    image: mysql:latest
+#    restart: on-failure
+#    ports:
+#      - "3306:3306"
+#    healthcheck:
+#      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 0
+#    environment:
+#      - MYSQL_ROOT_USERNAME=root
+#      - MYSQL_ROOT_PASSWORD=password
+#      - MYSQL_DATABASE=${DATABASE}
+#    volumes:
+#      - mysql-descontinuado-data:/var/lib/mysql-descontinuado
+#      - mysql-descontinuado-config:/etc/mysql-descontinuado:ro
 
-  mongo:
-    image: mongo:latest
-    restart: on-failure
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=root
-    volumes:
-      - mongodb-data:/data/db
+#  mongo:
+#    image: mongo:latest
+#    restart: on-failure
+#    ports:
+#      - "27017:27017"
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=root
+#      - MONGO_INITDB_ROOT_PASSWORD=root
+#    volumes:
+#      - mongodb-data:/data/db
 
 volumes:
   mysql-data:

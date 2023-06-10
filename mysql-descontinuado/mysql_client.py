@@ -1,3 +1,9 @@
+"""
+    --------------------------
+    Script descontinuado.
+    --------------------------
+"""
+
 import MySQLdb
 import json
 import time
@@ -56,7 +62,6 @@ def _create_table(table_name: str, columns: dict) -> None:
         print(f"[{time.strftime('%I:%M:%S %p')}] MySQL connection started."
               f"")
         cursor = connection.cursor()
-
         cursor.execute(f"USE {config['DATABASE']};")
 
         def convert_tuple(tup):

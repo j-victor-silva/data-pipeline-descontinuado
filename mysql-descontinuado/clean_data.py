@@ -1,4 +1,8 @@
 """
+    --------------------------
+    Script descontinuado.
+    --------------------------
+
     Este script vai organizar o documento mongo para um padrão em comum
     que será usado para todas as mensagens que serão enviadas para o servidor
     SQL.
@@ -114,11 +118,14 @@ def insert_messages_to_mysql():
         return connection
 
     cursor = get_connection_to_mysql().cursor()
+    cursor.execute(f"USE {config['DATABASE']}")
 
     try:
         count: int = 0
         for message in get_messages_from_mongo():
-            cursor.execute(f"""INSERT INTO landing (
+            # if count == 10:
+            #     break
+            command = f"""INSERT INTO landing (
                 user_id,
                 ip,
                 action,
@@ -130,18 +137,19 @@ def insert_messages_to_mysql():
                 timestamp,
                 ingestion_at
             ) VALUES (
-                {message["user_id"]},
-                {message["ip"]},
-                {message["action"]},
-                {message["traits"]},
-                {message["properties"]},
-                {message["browser"]},
-                {message["device"]},
-                {message["request"]},
-                {message["timestamp"]},
-                {message["ingestion_at"]}
+                "{message['user_id']}",
+                "{message['ip']}",
+                "{message['action']}",
+                "{message['traits']}",
+                "{message['properties']}",
+                "{message['browser']}",
+                "{message['device']}",
+                "{message['request']}",
+                "{message['timestamp']}",
+                "{message['ingestion_at']}"
             )"""
-                           )
+            print(command)
+            # cursor.execute(command)
 
             count += 1
     except:

@@ -13,7 +13,7 @@ COPY ../../requirements.txt requirements.txt
 RUN ["pip3", "install", "-r", "requirements.txt"]
 
 # Copying the folder of our project
-COPY ../../mysql ./mysql
+COPY ../../mysql-descontinuado ./mysql
 
 # Copying .env file
 COPY ../../.env .
